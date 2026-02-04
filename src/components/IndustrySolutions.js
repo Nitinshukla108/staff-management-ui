@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, useWindowDimensions, ScrollView } from 'react-native';
 import { COLORS } from '../constants/Colors';
 
 const industries = [
@@ -35,35 +35,66 @@ const industries = [
 
 const IndustrySolutions = () => {
   const [activeTab, setActiveTab] = useState(industries[0]);
+  const { width: windowWidth } = useWindowDimensions();
+  const isMobile = windowWidth < 768;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingVertical: isMobile ? 60 : 100 }]}>
       <Text style={styles.sectionBadge}>SOLUTIONS</Text>
-      <Text style={styles.sectionTitle}>Built for every industry</Text>
+      <Text style={[styles.sectionTitle, { fontSize: isMobile ? 28 : 36 }]}>
+        Built for every industry
+      </Text>
 
-      <View style={styles.tabsContainer}>
+      {/* Tabs Section: Mobile par centered wrap, Desktop par clean row */}
+      <View style={[styles.tabsContainer, { gap: isMobile ? 8 : 12 }]}>
         {industries.map((item) => (
           <TouchableOpacity 
             key={item.id} 
             onPress={() => setActiveTab(item)}
-            style={[styles.tabButton, activeTab.id === item.id && styles.activeTabButton]}
+            activeOpacity={0.8}
+            style={[
+              styles.tabButton, 
+              activeTab.id === item.id && styles.activeTabButton,
+              isMobile && { paddingHorizontal: 15, paddingVertical: 8 }
+            ]}
           >
-            <Text style={[styles.tabText, activeTab.id === item.id && styles.activeTabText]}>
+            <Text style={[
+              styles.tabText, 
+              activeTab.id === item.id && styles.activeTabText,
+              { fontSize: isMobile ? 12 : 14 }
+            ]}>
               {item.name}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <View style={styles.contentBox}>
+      {/* Content Box with Overlap Fix */}
+      <View style={[
+        styles.contentBox, 
+        { padding: isMobile ? 25 : 50 }
+      ]}>
         <View style={styles.textContent}>
-          <Text style={styles.contentTitle}>{activeTab.title}</Text>
-          <Text style={styles.contentDesc}>{activeTab.desc}</Text>
+          <Text style={[
+            styles.contentTitle, 
+            { 
+              fontSize: isMobile ? 22 : 30, 
+              lineHeight: isMobile ? 28 : 38 
+            }
+          ]}>
+            {activeTab.title}
+          </Text>
+          <Text style={[
+            styles.contentDesc, 
+            { fontSize: isMobile ? 14 : 16, lineHeight: isMobile ? 22 : 26 }
+          ]}>
+            {activeTab.desc}
+          </Text>
           
-          <View style={styles.featureGrid}>
+          <View style={[styles.featureGrid, { gap: isMobile ? 8 : 12 }]}>
             {activeTab.features.map((f, i) => (
-              <View key={i} style={styles.featureTag}>
-                <Text style={styles.featureTagText}>✓ {f}</Text>
+              <View key={i} style={[styles.featureTag, isMobile && { paddingHorizontal: 12 }]}>
+                <Text style={[styles.featureTagText, { fontSize: isMobile ? 12 : 13 }]}>✓ {f}</Text>
               </View>
             ))}
           </View>
@@ -74,60 +105,72 @@ const IndustrySolutions = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { paddingVertical: 80, backgroundColor: '#FFF', alignItems: 'center' },
-  sectionBadge: { fontSize: 14, fontWeight: 'bold', color: COLORS.primary, letterSpacing: 2, marginBottom: 15 },
-  sectionTitle: { fontSize: 32, fontWeight: '800', color: '#1e293b', marginBottom: 40, textAlign: 'center' },
+  container: { backgroundColor: '#FFF', alignItems: 'center', width: '100%' },
+  sectionBadge: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary || '#3B82F6', letterSpacing: 2, marginBottom: 15 },
+  sectionTitle: { fontWeight: '900', color: '#1e293b', marginBottom: 40, textAlign: 'center', paddingHorizontal: 20 },
   
   tabsContainer: { 
     flexDirection: 'row', 
     flexWrap: 'wrap', 
     justifyContent: 'center', 
-    marginBottom: 30,
-    gap: 12 
+    marginBottom: 35,
+    paddingHorizontal: 10,
+    width: '100%',
+    maxWidth: 1000
   },
   tabButton: { 
-    paddingVertical: 10, 
-    paddingHorizontal: 20, 
-    borderRadius: 25, 
+    paddingVertical: 12, 
+    paddingHorizontal: 24, 
+    borderRadius: 30, 
     backgroundColor: '#F1F5F9',
     borderWidth: 1,
-    borderColor: '#E2E8F0'
+    borderColor: '#E2E8F0',
+    flexShrink: 0
   },
-  activeTabButton: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  tabText: { fontWeight: '700', color: '#64748b', fontSize: 14 },
+  activeTabButton: { 
+    backgroundColor: COLORS.primary || '#3B82F6', 
+    borderColor: COLORS.primary || '#3B82F6',
+    ...Platform.select({
+      web: { boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }
+    })
+  },
+  tabText: { fontWeight: '800', color: '#64748b' },
   activeTabText: { color: '#FFF' },
 
   contentBox: { 
-    width: '92%', 
+    width: '90%', 
     maxWidth: 900, 
     backgroundColor: '#F8FAFC', 
-    borderRadius: 20, 
-    padding: Platform.OS === 'web' ? 50 : 30, 
+    borderRadius: 24, 
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0'
+    borderColor: '#E2E8F0',
+    ...Platform.select({
+        web: { boxShadow: '0 20px 40px rgba(0,0,0,0.03)' }
+    })
   },
   textContent: { width: '100%', alignItems: 'center' },
-  contentTitle: { fontSize: 26, fontWeight: '800', color: '#1e293b', marginBottom: 15, textAlign: 'center' },
-  contentDesc: { fontSize: 16, color: '#64748b', lineHeight: 24, marginBottom: 25, textAlign: 'center' },
+  contentTitle: { fontWeight: '900', color: '#1e293b', marginBottom: 15, textAlign: 'center' },
+  contentDesc: { color: '#64748b', marginBottom: 30, textAlign: 'center' },
   
   featureGrid: { 
     flexDirection: 'row', 
     flexWrap: 'wrap', 
     justifyContent: 'center',
-    gap: 10 
   },
   featureTag: { 
     backgroundColor: '#FFF', 
-    paddingVertical: 8, 
-    paddingHorizontal: 16, 
-    borderRadius: 8, 
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5
+    paddingVertical: 10, 
+    paddingHorizontal: 18, 
+    borderRadius: 12, 
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...Platform.select({
+        default: { elevation: 2 },
+        web: { boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }
+    })
   },
-  featureTagText: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary },
+  featureTagText: { fontWeight: 'bold', color: COLORS.primary || '#3B82F6' },
 });
 
 export default IndustrySolutions;

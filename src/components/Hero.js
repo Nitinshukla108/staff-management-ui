@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Linking } from 'react-native'; // Linking add kiya
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Linking, useWindowDimensions } from 'react-native';
 import { COLORS } from '../constants/Colors';
 
 const Hero = () => {
-  
-  // Yahan apna APK link daaliye
+  const { width: windowWidth } = useWindowDimensions();
+  const isMobile = windowWidth < 768;
+
   const apkDownloadUrl = 'https://your-website.com/staffpe.apk'; 
 
   const handleDownload = () => {
@@ -14,21 +15,43 @@ const Hero = () => {
   };
 
   return (
-    <View style={styles.heroContainer}>
+    <View style={[styles.heroContainer, { paddingVertical: isMobile ? 60 : 100 }]}>
       <View style={styles.heroContent}>
-        <Text style={styles.mainTitle}>
+        {/* Overlap Fix: Dynamic fontSize and lineHeight */}
+        <Text style={[
+          styles.mainTitle, 
+          { 
+            fontSize: isMobile ? 32 : 56, 
+            lineHeight: isMobile ? 42 : 72,
+            marginBottom: isMobile ? 20 : 30 
+          }
+        ]}>
           All-in-One Staff Software {"\n"} 
-          <Text style={{color: COLORS.primary}}>Powering Business Growth</Text> {"\n"}
+          <Text style={{color: COLORS.primary || '#3B82F6'}}>Powering Business Growth</Text> {"\n"}
           At Every Step
         </Text>
 
-        <Text style={styles.subTitle}>
+        <Text style={[
+          styles.subTitle, 
+          { 
+            fontSize: isMobile ? 16 : 18, 
+            lineHeight: isMobile ? 24 : 28,
+            paddingHorizontal: isMobile ? 10 : 0 
+          }
+        ]}>
           Automate your attendance, salary, and staff management with StaffPe. 
           The most powerful tool built for SME businesses.
         </Text>
 
-        {/* Updated Button */}
-        <TouchableOpacity style={styles.ctaButton} onPress={handleDownload}>
+        {/* CTA Button Fix: Full width on very small screens */}
+        <TouchableOpacity 
+          activeOpacity={0.8}
+          style={[
+            styles.ctaButton, 
+            { width: isMobile ? '100%' : 'auto', maxWidth: 300 }
+          ]} 
+          onPress={handleDownload}
+        >
           <Text style={styles.ctaButtonText}>Download Our App</Text>
         </TouchableOpacity>
       </View>
@@ -36,14 +59,55 @@ const Hero = () => {
   );
 };
 
-// Styles wahi rahenge jo pehle the...
 const styles = StyleSheet.create({
-  heroContainer: { width: '100%', paddingVertical: 80, alignItems: 'center', justifyContent: 'center' },
-  heroContent: { width: '90%', maxWidth: 1100, alignItems: 'center' },
-  mainTitle: { fontSize: Platform.OS === 'web' ? 56 : 30, fontWeight: '900', color: COLORS.textMain, textAlign: 'center', lineHeight: Platform.OS === 'web' ? 70 : 40, marginBottom: 25 },
-  subTitle: { fontSize: 18, color: COLORS.textSecondary, textAlign: 'center', marginBottom: 40, maxWidth: 800 },
-  ctaButton: { backgroundColor: COLORS.primary, paddingVertical: 18, paddingHorizontal: 40, borderRadius: 12, elevation: 8, shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 15 },
-  ctaButtonText: { color: COLORS.white, fontSize: 18, fontWeight: 'bold' },
+  heroContainer: { 
+    width: '100%', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: '#FFF' 
+  },
+  heroContent: { 
+    width: '90%', 
+    maxWidth: 1100, 
+    alignItems: 'center' 
+  },
+  mainTitle: { 
+    fontWeight: '900', 
+    color: '#1E293B', 
+    textAlign: 'center' 
+  },
+  subTitle: { 
+    color: '#64748B', 
+    textAlign: 'center', 
+    marginBottom: 40, 
+    maxWidth: 800 
+  },
+  ctaButton: { 
+    backgroundColor: COLORS.primary || '#3B82F6', 
+    paddingVertical: 18, 
+    paddingHorizontal: 45, 
+    borderRadius: 15, 
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      web: {
+        boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)',
+      },
+      default: {
+        elevation: 8,
+        shadowColor: '#3B82F6',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+      }
+    })
+  },
+  ctaButtonText: { 
+    color: '#FFF', 
+    fontSize: 18, 
+    fontWeight: 'bold',
+    letterSpacing: 0.5 
+  },
 });
 
 export default Hero;

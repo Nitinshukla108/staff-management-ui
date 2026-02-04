@@ -1,26 +1,40 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { COLORS } from '../constants/Colors';
 
-const FAQItem = ({ question, answer }) => {
+const FAQItem = ({ question, answer, isMobile }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <View style={styles.faqItem}>
+    <View style={[
+      styles.faqItem, 
+      isOpen && styles.faqItemActive // Jab open ho toh ye style apply hoga
+    ]}>
       <TouchableOpacity 
-        activeOpacity={0.7} 
+        activeOpacity={0.8} 
         onPress={() => setIsOpen(!isOpen)} 
         style={styles.questionRow}
       >
-        <Text style={[styles.questionText, isOpen && {color: COLORS.primary}]}>
+        <Text style={[
+          styles.questionText, 
+          { fontSize: isMobile ? 16 : 18 },
+          isOpen && { color: COLORS.primary || '#3B82F6' }
+        ]}>
           {question}
         </Text>
-        <Text style={styles.icon}>{isOpen ? '−' : '+'}</Text>
+        <Text style={[
+          styles.icon, 
+          { fontSize: isMobile ? 18 : 22, color: isOpen ? COLORS.primary : '#94a3b8' }
+        ]}>
+          {isOpen ? '−' : '+'}
+        </Text>
       </TouchableOpacity>
       
       {isOpen && (
         <View style={styles.answerBox}>
-          <Text style={styles.answerText}>{answer}</Text>
+          <Text style={[styles.answerText, { fontSize: isMobile ? 14 : 16 }]}>
+            {answer}
+          </Text>
         </View>
       )}
     </View>
@@ -28,6 +42,9 @@ const FAQItem = ({ question, answer }) => {
 };
 
 const FAQ = () => {
+  const { width: windowWidth } = useWindowDimensions();
+  const isMobile = windowWidth < 768;
+
   const faqData = [
     {
       question: "Do I need any extra hardware to use StaffPe?",
@@ -48,13 +65,20 @@ const FAQ = () => {
   ];
 
   return (
-    <View style={styles.section}>
+    <View style={[styles.section, { paddingVertical: isMobile ? 60 : 100 }]}>
       <Text style={styles.sectionBadge}>HAVE QUESTIONS?</Text>
-      <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+      <Text style={[styles.sectionTitle, { fontSize: isMobile ? 26 : 32 }]}>
+        Frequently Asked Questions
+      </Text>
       
-      <View style={styles.faqContainer}>
+      <View style={[styles.faqContainer, { width: isMobile ? '92%' : '80%' }]}>
         {faqData.map((item, index) => (
-          <FAQItem key={index} question={item.question} answer={item.answer} />
+          <FAQItem 
+            key={index} 
+            question={item.question} 
+            answer={item.answer} 
+            isMobile={isMobile} 
+          />
         ))}
       </View>
     </View>
@@ -62,16 +86,47 @@ const FAQ = () => {
 };
 
 const styles = StyleSheet.create({
-  section: { paddingVertical: 100, backgroundColor: '#FFF', alignItems: 'center' },
-  sectionBadge: { fontSize: 14, fontWeight: 'bold', color: COLORS.primary, letterSpacing: 2, marginBottom: 10 },
-  sectionTitle: { fontSize: 32, fontWeight: '800', textAlign: 'center', color: '#1e293b', marginBottom: 50 },
-  faqContainer: { width: '90%', maxWidth: 800 },
-  faqItem: { borderBottomWidth: 1, borderBottomColor: '#E2E8F0', marginBottom: 10 },
-  questionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20 },
-  questionText: { fontSize: 18, fontWeight: '600', color: '#334155', flex: 1 },
-  icon: { fontSize: 24, color: '#94a3b8', marginLeft: 20 },
-  answerBox: { paddingBottom: 20, paddingRight: 40 },
-  answerText: { fontSize: 16, lineHeight: 24, color: '#64748b' }
+  section: { backgroundColor: '#FFF', alignItems: 'center' },
+  sectionBadge: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary || '#3B82F6', letterSpacing: 2, marginBottom: 10 },
+  sectionTitle: { fontWeight: '900', textAlign: 'center', color: '#1e293b', marginBottom: 40, paddingHorizontal: 20 },
+  faqContainer: { maxWidth: 800 },
+  faqItem: { 
+    borderWidth: 1, 
+    borderColor: '#E2E8F0', 
+    borderRadius: 16, // Thoda zyada round jaisa video mein hai
+    marginBottom: 16, 
+    backgroundColor: '#FFF',
+    overflow: 'hidden',
+  },
+  faqItemActive: {
+    borderColor: COLORS.primary || '#3B82F6',
+    backgroundColor: '#EEF2FF', // Poore box ke andar blue color (jaisa video mein orange tha)
+    borderWidth: 1.5,
+    // Soft shadow for depth
+    elevation: 2,
+    shadowColor: COLORS.primary || '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  questionRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingVertical: 22, 
+    paddingHorizontal: 25 
+  },
+  questionText: { fontWeight: '700', color: '#334155', flex: 1, lineHeight: 24 },
+  icon: { marginLeft: 15, fontWeight: 'bold' },
+  answerBox: { 
+    paddingBottom: 22, 
+    paddingHorizontal: 25,
+  },
+  answerText: { 
+    lineHeight: 24, 
+    color: '#475569', // Thoda dark grey taaki blue background pe saaf dikhe
+    fontWeight: '500'
+  }
 });
 
 export default FAQ;
